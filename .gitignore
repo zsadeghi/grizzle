@@ -4,3 +4,4 @@
 *.iws
 **/static/lib/**
 **/db/*
+**/target/*
