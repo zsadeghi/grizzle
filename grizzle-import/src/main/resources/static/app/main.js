@@ -36,6 +36,7 @@ module.controller('StatusController', ['$scope', '$http', '$interval', '$timeout
             $('#loading-dialog').modal('hide');
         });
     };
+
     var stopImport = function () {
         $('#loading-dialog').modal('show');
         $scope.error = '';
@@ -50,24 +51,30 @@ module.controller('StatusController', ['$scope', '$http', '$interval', '$timeout
             $('#loading-dialog').modal('hide');
         });
     };
+    $scope.showDiagnostics = false;
     $scope.importer = {
         status: "UNKNOWN",
         converted: 0,
         total: 0,
-        last: "No data",
+        last: null,
         start: startImport,
-        stop: stopImport
+        stop: stopImport,
+        showDiagnostics: false
     };
     var watcher = null;
     $scope.$watch('importer.status', function (status) {
-        if (status !== 'DONE' && status !== 'IDLE') {
+        if (status !== 'DONE' && status !== 'IDLE' && status !== 'ERROR') {
             watcher = $interval(function () {
                 $http.get('/api/rest/v1/converter/status/converted')
                     .then(function (result) {
                         $scope.importer.converted = result.data;
-                        return $http.get('/api/rest/v1/converter/last').then(function (result) {
-                            $scope.importer.last = result.data;
-                        });
+                        if ($scope.importer.showDiagnostics) {
+                            return $http.get('/api/rest/v1/converter/last').then(function (result) {
+                                $scope.importer.last = result.data;
+                            });
+                        } else {
+                            $scope.importer.last = null;
+                        }
                     }, function (reason) {
                         $scope.error = reason.data;
                         $interval.cancel(watcher);
