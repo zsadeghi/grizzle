@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en" ng-app="Importer">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="lib/jquery/dist/jquery.slim.js"></script>
+    <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/angular/angular.js"></script>
+    <script src="app/main.js"></script>
+</head>
+<body class="container" ng-controller="StatusController" ng-cloak="">
+<div class="row">&nbsp;</div>
+<h3>Million-Song-DB Importer</h3>
+<hr/>
+<div class="alert alert-danger" role="alert" ng-if="error">
+    {{error}}
+</div>
+<div ng-if="!error">
+    <form>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Current Status</label>
+            <div class="col-sm-10">
+                <div class="form-control-plaintext">
+                    <span class="badge"
+                          ng-class="importer.status == 'IDLE' ? 'badge-warning' : (importer.status == 'UNKNOWN' ? 'badge-dark' : (importer.status == 'DONE' ? 'badge-success' : (importer.status == 'ERROR' ? 'badge-danger' : 'badge-info')))">
+                        {{importer.status | status}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Total Objects</label>
+            <div class="col-sm-10">
+                <div class="form-control-plaintext">
+                    {{importer.total | number}}
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Converted Objects</label>
+            <div class="col-sm-10">
+                <div class="form-control-plaintext">
+                    {{importer.converted | number}}
+                </div>
+            </div>
+        </div>
+        <div class="form-group row" ng-init="showDiagnostics = false;">
+            <label class="col-sm-2 col-form-label" ng-click="showDiagnostics = !showDiagnostics">Diagnostics
+                <span class="badge badge-pill badge-dark">
+                    {{showDiagnostics ? '-' : '+'}}
+                </span>
+            </label>
+            <div class="col-sm-10" ng-show="showDiagnostics">
+                <div class="form-control" style="height: 200px;">
+                    <pre ng-bind="importer.last | json" class="h-100"></pre>
+                </div>
+            </div>
+        </div>
+        <h4>Conversion</h4>
+        <div ng-if="importer.status == 'IDLE' || importer.status == 'DONE' || importer.status == 'ERROR'">
+            <p>It looks like the conversion has been done for a number of objects.</p>
+            <p>You can elect to either re-run the conversion or just import what is left.</p>
+            <div class="float-right">
+                <button type="button" class="btn btn-warning" ng-click="importer.start(false);"
+                        ng-disabled="importer.status == 'DONE'">Resume</button>
+                <button type="button" class="btn btn-danger" data-toggle="modal"
+                        data-target="#confirm-rerun">Rerun</button>
+            </div>
+        </div>
+        <div ng-if="importer.status != 'IDLE' && importer.status != 'DONE' && importer.status != 'ERROR'">
+            <div class="alert alert-info">
+                <p>The progress bar might appear stuck if you have resumed the converter. This is because the
+                    progress bar reflects the number of objects successfully converted, and the converter will
+                need to evaluate these objects to determine if it needs to reconvert them.</p>
+            </div>
+            <div class="progress" style="height: 25px;">
+                <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" style="width:
+                {{importer.converted / importer.total * 100}}%"
+                     aria-valuenow="importer.converted" aria-valuemin="0" aria-valuemax="{{importer.total}}">
+                    {{importer.converted/importer.total | percent}}
+                </div>
+            </div>
+            <div class="row">&nbsp;</div>
+            <div class="float-right">
+                <button type="button" class="btn btn-danger" ng-click="importer.stop();"
+                        ng-disabled="importer.status == 'DONE'">Stop</button>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- Modal -->
+<div class="modal" id="loading-dialog" tabindex="-1" role="dialog"
+     aria-hidden="true" data-keyboard="false" data-focus="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0">
+            <div class="modal-body">
+                <img src="app/ajax-loader.gif" alt="Lading image: Pacman eating air" title="Lading image: Pacman eating air" />
+                Communicating with the server &hellip;
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="confirm-rerun" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rerun Import</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Rerunning the conversion will erase all existing content first. This
+                    action <strong>cannot be undone</strong>.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="importer.start(true);">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

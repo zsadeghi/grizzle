@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    username: grizzle
+    password: grizzle-1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost/grizzle?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=PST&useSSL=false&characterEncoding=UTF-8
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL57InnoDBDialect
+#    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+logging:
+  level:
+    org.springframework: info
+    org.hibernate: off
+db:
+  metadata: grizzle-import/src/main/resources/db/track_metadata.db
+  mxm: grizzle-import/src/main/resources/db/mxm_dataset.db
