@@ -39,7 +39,7 @@ public class Lyrics {
         this.musixMatchId = musixMatchId;
     }
 
-    @OneToMany
+    @Transient
     public Set<Token> getTokens() {
         return tokens;
     }

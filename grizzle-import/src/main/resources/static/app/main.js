@@ -65,16 +65,23 @@ module.controller('StatusController', ['$scope', '$http', '$interval', '$timeout
     $scope.$watch('importer.status', function (status) {
         if (status !== 'DONE' && status !== 'IDLE' && status !== 'ERROR') {
             watcher = $interval(function () {
-                $http.get('/api/rest/v1/converter/status/converted')
+                $http.get('/api/rest/v1/converter/status')
                     .then(function (result) {
-                        $scope.importer.converted = result.data;
-                        if ($scope.importer.showDiagnostics) {
-                            return $http.get('/api/rest/v1/converter/last').then(function (result) {
-                                $scope.importer.last = result.data;
+                        $scope.importer.status = result.data;
+                        $http.get('/api/rest/v1/converter/status/converted')
+                            .then(function (result) {
+                                $scope.importer.converted = result.data;
+                                if ($scope.importer.showDiagnostics) {
+                                    return $http.get('/api/rest/v1/converter/last').then(function (result) {
+                                        $scope.importer.last = result.data;
+                                    });
+                                } else {
+                                    $scope.importer.last = null;
+                                }
+                            }, function (reason) {
+                                $scope.error = reason.data;
+                                $interval.cancel(watcher);
                             });
-                        } else {
-                            $scope.importer.last = null;
-                        }
                     }, function (reason) {
                         $scope.error = reason.data;
                         $interval.cancel(watcher);

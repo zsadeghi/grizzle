@@ -89,9 +89,10 @@ public class InputConverter {
             }
             final Set<Token> tokens = lyrics.getTokens();
             lyrics.setTokens(Collections.emptySet());
-            lyricsRepository.saveAndFlush(lyrics);
-            tokenRepository.deleteByLyrics(lyrics);
+            final Lyrics savedLyrics = lyricsRepository.saveAndFlush(lyrics);
+            tokenRepository.deleteByLyrics(savedLyrics);
             for (Token token : tokens) {
+                token.setLyrics(savedLyrics);
                 last.set(token);
                 tokenRepository.saveAndFlush(token);
             }

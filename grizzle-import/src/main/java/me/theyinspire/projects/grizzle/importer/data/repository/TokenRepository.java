@@ -10,6 +10,6 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     Set<Token> findByLyrics(Lyrics lyrics);
 
-    void deleteByLyrics(Lyrics lyrics);
+    long deleteByLyrics(Lyrics lyrics);
 
 }
