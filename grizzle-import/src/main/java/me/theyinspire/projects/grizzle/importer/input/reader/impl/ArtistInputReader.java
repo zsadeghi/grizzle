@@ -1,7 +1,7 @@
 package me.theyinspire.projects.grizzle.importer.input.reader.impl;
 
-import me.theyinspire.projects.grizzle.importer.data.DataUtils;
-import me.theyinspire.projects.grizzle.importer.data.model.Artist;
+import me.theyinspire.projects.grizzle.utils.DataUtils;
+import me.theyinspire.projects.grizzle.model.Artist;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

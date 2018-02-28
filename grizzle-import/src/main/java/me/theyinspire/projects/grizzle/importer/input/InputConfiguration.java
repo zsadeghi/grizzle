@@ -1,9 +1,9 @@
 package me.theyinspire.projects.grizzle.importer.input;
 
-import me.theyinspire.projects.grizzle.importer.data.repository.ArtistRepository;
-import me.theyinspire.projects.grizzle.importer.data.repository.LyricsRepository;
-import me.theyinspire.projects.grizzle.importer.data.repository.TokenRepository;
-import me.theyinspire.projects.grizzle.importer.data.repository.TrackRepository;
+import me.theyinspire.projects.grizzle.repository.ArtistRepository;
+import me.theyinspire.projects.grizzle.repository.LyricsRepository;
+import me.theyinspire.projects.grizzle.repository.TokenRepository;
+import me.theyinspire.projects.grizzle.repository.TrackRepository;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.ArtistInputReader;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.LyricsInputReader;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.TrackInputReader;

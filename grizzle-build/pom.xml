@@ -13,6 +13,7 @@
         <module>../grizzle-parent</module>
         <module>../grizzle-core</module>
         <module>../grizzle-import</module>
+        <module>../grizzle-model</module>
     </modules>
 
     <properties>

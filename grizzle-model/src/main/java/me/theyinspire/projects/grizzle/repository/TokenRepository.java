@@ -1,7 +1,7 @@
-package me.theyinspire.projects.grizzle.importer.data.repository;
+package me.theyinspire.projects.grizzle.repository;
 
-import me.theyinspire.projects.grizzle.importer.data.model.Lyrics;
-import me.theyinspire.projects.grizzle.importer.data.model.Token;
+import me.theyinspire.projects.grizzle.model.Lyrics;
+import me.theyinspire.projects.grizzle.model.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Set;

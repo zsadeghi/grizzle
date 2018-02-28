@@ -1,4 +1,4 @@
-package me.theyinspire.projects.grizzle.importer.data;
+package me.theyinspire.projects.grizzle.utils;
 
 public class DataUtils {
 

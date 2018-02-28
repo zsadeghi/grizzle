@@ -1,4 +1,4 @@
-package me.theyinspire.projects.grizzle.importer.data.model;
+package me.theyinspire.projects.grizzle.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

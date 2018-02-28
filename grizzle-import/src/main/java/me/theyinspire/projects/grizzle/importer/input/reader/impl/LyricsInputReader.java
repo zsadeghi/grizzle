@@ -1,9 +1,9 @@
 package me.theyinspire.projects.grizzle.importer.input.reader.impl;
 
-import me.theyinspire.projects.grizzle.importer.data.DataUtils;
-import me.theyinspire.projects.grizzle.importer.data.model.Lyrics;
-import me.theyinspire.projects.grizzle.importer.data.model.Token;
-import me.theyinspire.projects.grizzle.importer.data.model.Track;
+import me.theyinspire.projects.grizzle.utils.DataUtils;
+import me.theyinspire.projects.grizzle.model.Lyrics;
+import me.theyinspire.projects.grizzle.model.Token;
+import me.theyinspire.projects.grizzle.model.Track;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
