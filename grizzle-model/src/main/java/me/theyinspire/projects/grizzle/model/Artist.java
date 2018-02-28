@@ -3,9 +3,11 @@ package me.theyinspire.projects.grizzle.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
+@Table(name = "artist")
 public class Artist {
 
     private String id;

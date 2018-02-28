@@ -1,11 +1,9 @@
 package me.theyinspire.projects.grizzle.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "track")
 public class Track {
 
     private String id;

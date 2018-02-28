@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
+@Table(name = "lyrics")
 public class Lyrics {
 
     private Long id;

@@ -1,13 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" ng-app="Explorer">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Data Explorer</title>
+    <title>Grizzle: Data Explorer</title>
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="lib/components-font-awesome/css/fontawesome-all.min.css" />
+    <script src="lib/jquery/dist/jquery.slim.js"></script>
+    <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/angular/angular.js"></script>
+    <script src="lib/angular-route/angular-route.js"></script>
+    <script src="app/main.js"></script>
+    <script src="app/pages/home/controller.js"></script>
+    <script src="app/pages/grid/controller.js"></script>
 </head>
 <body>
-
+<nav class="navbar navbar-dark bg-dark" style="color: #fff;">
+    <a class="navbar-brand">Explorer</a>
+</nav>
+<div ng-view></div>
 </body>
 </html>
