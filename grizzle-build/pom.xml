@@ -14,6 +14,7 @@
         <module>../grizzle-core</module>
         <module>../grizzle-import</module>
         <module>../grizzle-model</module>
+        <module>../grizzle-explorer</module>
     </modules>
 
     <properties>

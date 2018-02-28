@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@ComponentScan(
-        useDefaultFilters = false
-)
+@ComponentScan(useDefaultFilters = false)
 @EnableAutoConfiguration
 @Import({
                 InputConfiguration.class,
