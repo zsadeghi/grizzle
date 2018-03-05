@@ -4,13 +4,12 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "token")
+@Table(name = "token_temp")
 public class Token {
 
     private Long id;
     private Lyrics lyrics;
-    @Column(length = 2048)
-    private String word;
+    private Word word;
     private Integer count;
 
     @Id
@@ -32,11 +31,12 @@ public class Token {
         this.lyrics = lyrics;
     }
 
-    public String getWord() {
+    @ManyToOne
+    public Word getWord() {
         return word;
     }
 
-    public void setWord(final String word) {
+    public void setWord(final Word word) {
         this.word = word;
     }
 

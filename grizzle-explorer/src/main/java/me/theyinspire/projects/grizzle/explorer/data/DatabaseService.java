@@ -1,5 +1,6 @@
 package me.theyinspire.projects.grizzle.explorer.data;
 
+import me.theyinspire.projects.grizzle.explorer.dto.Header;
 import me.theyinspire.projects.grizzle.explorer.dto.ResultPage;
 
 import javax.persistence.EntityManager;
@@ -17,6 +18,7 @@ public class DatabaseService {
     private final EntityManager entityManager;
     private final Map<String, Class<?>> tables;
     private final Map<String, List<Attribute<?, ?>>> attributesMapping;
+    private final Map<String, Integer> counts;
 
     public DatabaseService(final EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -31,6 +33,10 @@ public class DatabaseService {
                                                            .collect(Collectors.toList());
             attributesMapping.put(tableName, attributes);
         });
+        counts = new HashMap<>();
+        for (String tableName : tableNames()) {
+            getCount(tableName);
+        }
     }
 
     public List<String> tableNames() {
@@ -46,33 +52,69 @@ public class DatabaseService {
         final int pageSize = 10;
         final int pages = (int) Math.ceil((double) count / (double) pageSize);
         final int actualPage = smoothPageNumber(page, pages);
-        final Query query = entityManager.createNativeQuery(getSelectStatement(table));
+        final String sqlString = getSelectStatement(table);
+        final Query query = entityManager.createNativeQuery(sqlString);
         query.setFirstResult((actualPage - 1) * pageSize);
         query.setMaxResults(pageSize);
         //noinspection unchecked
         final List<Object[]> list = (List<Object[]>) query.getResultList();
         final List<List<Object>> values = list.stream().map(Arrays::asList).collect(Collectors.toList());
-        return new ResultPage(count, actualPage, pageSize, values, pages);
+        return new ResultPage(count, actualPage, pageSize, values, pages, sqlString);
+    }
+
+    public ResultPage fetchById(String table, Object id) {
+        final int count = 1;
+        final int pageSize = 10;
+        final int pages = (int) Math.ceil((double) count / (double) pageSize);
+        final int actualPage = smoothPageNumber(1, pages);
+        final String sqlString = getSelectStatementById(table);
+        final Query query = entityManager.createNativeQuery(sqlString);
+        query.setParameter(1, id);
+        query.setFirstResult((actualPage - 1) * pageSize);
+        query.setMaxResults(pageSize);
+        //noinspection unchecked
+        final List<Object[]> list = (List<Object[]>) query.getResultList();
+        final List<List<Object>> values = list.stream().map(Arrays::asList).collect(Collectors.toList());
+        return new ResultPage(count, actualPage, pageSize, values, pages, sqlString);
     }
 
     private String getSelectStatement(final String table) {
         return "SELECT "
-                + headers(table).stream().reduce((a, b) -> a + ", " + b).orElse("*")
+                + headers(table).stream().map(Header::getName).reduce((a, b) -> a + ", " + b).orElse("*")
                 + " FROM "
                 + table;
     }
 
-    public List<String> headers(String table) {
+    private String getSelectStatementById(final String table) {
+        return "SELECT "
+                + headers(table).stream().map(Header::getName).reduce((a, b) -> a + ", " + b).orElse("*")
+                + " FROM "
+                + table
+                + " WHERE id = ?1";
+    }
+
+    public List<Header> headers(String table) {
         return attributesMapping.get(table)
                                 .stream()
-                                .map(attribute -> attribute.isAssociation()
-                                        ? (
-                                        attribute.getPersistentAttributeType().name().endsWith("_ONE")
-                                                ? attribute.getName().concat("_id") : null)
-                                        : attribute.getName())
-                                .filter(Objects::nonNull)
-                                .map(name -> name.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase())
+                                .map(attribute -> {
+                                    final Header header = new Header();
+                                    header.setName(getColumnName(attribute));
+                                    header.setAssociation(attribute.isAssociation());
+                                    return header;
+                                })
+                                .filter(header -> header.getName() != null)
+                                .map(header -> header.setName(header.getName()
+                                                                    .replaceAll("([a-z])([A-Z])", "$1_$2")
+                                                                    .toLowerCase()))
                                 .collect(Collectors.toList());
+    }
+
+    private String getColumnName(final Attribute<?, ?> attribute) {
+        return attribute.isAssociation()
+                ? (
+                attribute.getPersistentAttributeType().name().endsWith("_ONE")
+                        ? attribute.getName().concat("_id") : null)
+                : attribute.getName();
     }
 
     private int smoothPageNumber(int page, final int pages) {
@@ -86,8 +128,10 @@ public class DatabaseService {
     }
 
     private int getCount(final String table) {
-        final Query query = entityManager.createNativeQuery("SELECT COUNT(*) FROM " + table);
-        return ((BigInteger) query.getSingleResult()).intValue();
+        return counts.computeIfAbsent(table, s -> {
+            final Query query = entityManager.createNativeQuery("SELECT COUNT(*) FROM " + table);
+            return ((BigInteger) query.getSingleResult()).intValue();
+        });
     }
 
     private static String getTableName(final EntityType<?> entity) {

@@ -1,0 +1,18 @@
+{
+  "name": "grizzle-core",
+  "homepage": "https://github.com/zsadeghi/grizzle",
+  "authors": [
+    "Zohreh Sadeghi <zsadeghi@uw.edu>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

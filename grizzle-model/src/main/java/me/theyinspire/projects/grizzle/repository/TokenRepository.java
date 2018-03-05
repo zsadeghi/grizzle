@@ -12,4 +12,6 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     long deleteByLyrics(Lyrics lyrics);
 
+    Set<Token> findByWordLike(String word);
+
 }

@@ -1,17 +1,11 @@
 package me.theyinspire.projects.grizzle.importer.input;
 
-import me.theyinspire.projects.grizzle.model.Artist;
-import me.theyinspire.projects.grizzle.model.Lyrics;
-import me.theyinspire.projects.grizzle.model.Token;
-import me.theyinspire.projects.grizzle.model.Track;
-import me.theyinspire.projects.grizzle.repository.ArtistRepository;
-import me.theyinspire.projects.grizzle.repository.LyricsRepository;
-import me.theyinspire.projects.grizzle.repository.TokenRepository;
-import me.theyinspire.projects.grizzle.repository.TrackRepository;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.ArtistInputReader;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.LyricsInputReader;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.TrackInputReader;
 import me.theyinspire.projects.grizzle.importer.web.dto.ErrorResult;
+import me.theyinspire.projects.grizzle.model.*;
+import me.theyinspire.projects.grizzle.repository.*;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -25,6 +19,7 @@ public class InputConverter {
     private final LyricsRepository lyricsRepository;
     private final TokenRepository tokenRepository;
     private final TrackRepository trackRepository;
+    private final WordRepository wordRepository;
     private final ArtistInputReader artists;
     private final TrackInputReader tracks;
     private final LyricsInputReader lyrics;
@@ -36,6 +31,7 @@ public class InputConverter {
                           final LyricsRepository lyricsRepository,
                           final TokenRepository tokenRepository,
                           final TrackRepository trackRepository,
+                          final WordRepository wordRepository,
                           final ArtistInputReader artists,
                           final TrackInputReader tracks,
                           final LyricsInputReader lyrics) {
@@ -43,6 +39,7 @@ public class InputConverter {
         this.tokenRepository = tokenRepository;
         this.trackRepository = trackRepository;
         this.artistRepository = artistRepository;
+        this.wordRepository = wordRepository;
         this.artists = artists;
         this.tracks = tracks;
         this.lyrics = lyrics;
@@ -93,6 +90,13 @@ public class InputConverter {
             tokenRepository.deleteByLyrics(savedLyrics);
             for (Token token : tokens) {
                 token.setLyrics(savedLyrics);
+                final Word word = token.getWord();
+                final Word existingWord = wordRepository.findByWord(word.getWord());
+                if (existingWord == null) {
+                    token.setWord(wordRepository.saveAndFlush(word));
+                } else {
+                    token.setWord(existingWord);
+                }
                 last.set(token);
                 tokenRepository.saveAndFlush(token);
             }

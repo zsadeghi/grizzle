@@ -1,5 +1,6 @@
 package me.theyinspire.projects.grizzle.importer.input.reader.impl;
 
+import me.theyinspire.projects.grizzle.model.Word;
 import me.theyinspire.projects.grizzle.utils.DataUtils;
 import me.theyinspire.projects.grizzle.model.Lyrics;
 import me.theyinspire.projects.grizzle.model.Token;
@@ -35,7 +36,9 @@ public class LyricsInputReader extends AbstractSqliteInputReader<Lyrics> {
         while (query.next()) {
             final Token token = new Token();
             token.setLyrics(lyrics);
-            token.setWord(DataUtils.toValid3ByteUTF8String(query.getString("word")));
+            final Word word = new Word();
+            word.setWord(DataUtils.toValid3ByteUTF8String(query.getString("word")));
+            token.setWord(word);
             token.setCount(query.getInt("count"));
             tokens.add(token);
         }

@@ -6,13 +6,15 @@ spring:
     url: jdbc:mysql://localhost/grizzle?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=PST&useSSL=false&characterEncoding=UTF-8
   jpa:
     database-platform: org.hibernate.dialect.MySQL57InnoDBDialect
-    show-sql: true
-#    generate-ddl: true
-#    hibernate:
-#      ddl-auto: update
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
 logging:
   level:
     org.springframework: info
     org.hibernate: off
 server:
-  port: 8081
+  port: 8082
+words:
+  reverse: grizzle-core/src/main/resources/mxm_reverse_mapping.txt

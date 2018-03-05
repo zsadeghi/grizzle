@@ -11,13 +11,15 @@ public class ResultPage {
     private final boolean hasNextPage;
     private final boolean hasPreviousPage;
     private final int totalPages;
+    private final String query;
 
     public ResultPage(final long total, final int pageNumber, final int pageSize, final List<List<Object>> values,
-                      final int totalPages) {
+                      final int totalPages, final String query) {
         this.total = total;
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.values = values;
+        this.query = query;
         this.hasNextPage = pageSize * (pageNumber - 1) < totalPages;
         this.hasPreviousPage = pageNumber > 1;
         this.totalPages = totalPages;
@@ -51,6 +53,10 @@ public class ResultPage {
         return totalPages;
     }
 
+    public String getQuery() {
+        return query;
+    }
+
     @Override
     public String toString() {
         return "ResultPage{" +
@@ -59,6 +65,7 @@ public class ResultPage {
                 ", hasPreviousPage=" + hasPreviousPage +
                 ", hasNextPage=" + hasNextPage +
                 ", pageSize=" + pageSize +
+                ", query=" + query +
                 ", values=" + values +
                 '}';
     }

@@ -1,6 +1,7 @@
 package me.theyinspire.projects.grizzle.explorer.web.controller;
 
 import me.theyinspire.projects.grizzle.explorer.data.DatabaseService;
+import me.theyinspire.projects.grizzle.explorer.dto.Header;
 import me.theyinspire.projects.grizzle.explorer.dto.ResultPage;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +30,13 @@ public class DatabaseController {
         return service.fetch(name, page);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = {"/tables/{name}/{id}", "/tables/{name}/{id}/"})
+    public ResultPage fetchRowById(@PathVariable("name") String name, @PathVariable("id") Object id) {
+        return service.fetchById(name, id);
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = {"/tables/{name}/headers", "/tables/{name}/headers/"})
-    public List<String> fetchHeaders(@PathVariable("name") String name) {
+    public List<Header> fetchHeaders(@PathVariable("name") String name) {
         return service.headers(name);
     }
 

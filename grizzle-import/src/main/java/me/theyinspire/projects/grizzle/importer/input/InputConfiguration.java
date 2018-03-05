@@ -1,12 +1,9 @@
 package me.theyinspire.projects.grizzle.importer.input;
 
-import me.theyinspire.projects.grizzle.repository.ArtistRepository;
-import me.theyinspire.projects.grizzle.repository.LyricsRepository;
-import me.theyinspire.projects.grizzle.repository.TokenRepository;
-import me.theyinspire.projects.grizzle.repository.TrackRepository;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.ArtistInputReader;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.LyricsInputReader;
 import me.theyinspire.projects.grizzle.importer.input.reader.impl.TrackInputReader;
+import me.theyinspire.projects.grizzle.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,8 +35,10 @@ public class InputConfiguration {
                                          final TrackRepository trackRepository,
                                          final ArtistInputReader artists,
                                          final TrackInputReader tracks,
-                                         final LyricsInputReader lyrics) {
-        return new InputConverter(artistRepository, lyricsRepository, tokenRepository, trackRepository, artists, tracks,
+                                         final LyricsInputReader lyrics,
+                                         final WordRepository wordRepository) {
+        return new InputConverter(artistRepository, lyricsRepository, tokenRepository, trackRepository, wordRepository,
+                                  artists, tracks,
                                   lyrics);
     }
 
