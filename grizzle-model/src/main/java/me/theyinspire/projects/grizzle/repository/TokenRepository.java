@@ -2,7 +2,6 @@ package me.theyinspire.projects.grizzle.repository;
 
 import me.theyinspire.projects.grizzle.model.Lyrics;
 import me.theyinspire.projects.grizzle.model.Token;
-import me.theyinspire.projects.grizzle.projection.TokenLyricsId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,10 +16,6 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     long deleteByLyrics(Lyrics lyrics);
 
-    Set<Token> findByWordLike(String word);
-
-    Page<TokenLyricsId> findByWord_WordOrderByLyrics_IdAsc(String word, Pageable pageable);
-
     @Query(
             nativeQuery = true,
             value = "SELECT lyrics_id FROM token_temp INNER JOIN word w ON token_temp.word_id = w.id"
@@ -30,6 +25,18 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     )
     Page<BigInteger> findLyricsIds(String word, Pageable pageable);
 
-    long countDistinctByWord_Word(String word);
+    @Query(
+            nativeQuery = true,
+            value = "SELECT COUNT(DISTINCT lyrics_id) FROM token_temp INNER JOIN word w ON token_temp.word_id = w.id "
+                    + "WHERE w.word = ?1"
+    )
+    BigInteger getDocumentFrequency(String word);
+
+    @Query(
+            nativeQuery = true,
+            value = "SELECT count FROM token_temp INNER JOIN word w ON token_temp.word_id = w.id WHERE w.word = ?1 "
+                    + "AND token_temp.lyrics_id = ?2"
+    )
+    BigInteger getTermFrequency(String word, Long lyricsId);
 
 }
