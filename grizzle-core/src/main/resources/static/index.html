@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" ng-app="Explorer">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Spotifind</title>
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="lib/components-font-awesome/css/fontawesome-all.min.css" />
+    <script src="lib/jquery/dist/jquery.slim.js"></script>
+    <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/angular/angular.js"></script>
+    <script src="app/main.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark" style="color: #fff;">
+    <a class="navbar-brand" ng-href="#">Spotifind</a>
+</nav>
+<div class="row">&nbsp;</div>
+<div class="container" ng-controller="SearchPageController" ng-cloak="">
+    <form ng-submit="search();">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" aria-label="Search &hellip;" placeholder="Search &hellip;"
+                   ng-model="view.query" ng-disabled="view.loading">
+            <div class="input-group-append">
+                <span class="input-group-text"><i class="fa fa-search"></i></span>
+            </div>
+        </div>
+    </form>
+    <div ng-if="view.results.length">
+        <hr/>
+        <div class="list-group">
+            <div ng-repeat="item in view.results"
+                  class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{item.track.title}}</h5>
+                    <small>{{item.musixMatchId}}</small>
+                </div>
+                <p class="mb-1"><i class="fa fa-music"></i> {{item.track.album}}</p>
+                <p class="mb-1"><i class="fa fa-user"></i> {{item.track.artist.name}}</p>
+            </div>
+        </div>
+    </div>
+    <div ng-show="!view.results.length && view.loading">
+        <div class="row">&nbsp;</div>
+        <img src="app/big-ajax-loader.gif" alt="Loading results ..." class="mx-auto d-block" style="width: 50px;" />
+    </div>
+</div>
+</body>
+</html>
