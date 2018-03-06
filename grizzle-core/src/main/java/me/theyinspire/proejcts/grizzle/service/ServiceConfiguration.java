@@ -1,11 +1,11 @@
 package me.theyinspire.proejcts.grizzle.service;
 
+import me.theyinspire.projects.grizzle.repository.LyricsRepository;
 import me.theyinspire.projects.grizzle.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.persistence.EntityManager;
 import java.io.IOException;
 
 @Configuration
@@ -18,8 +18,8 @@ public class ServiceConfiguration {
 
     @Bean
     public SearchService searchService(final TokenRepository tokenRepository, final StringService stringService,
-                                       final EntityManager entityManager) {
-        return new SearchService(tokenRepository, stringService, entityManager);
+                                       final LyricsRepository lyricsRepository) {
+        return new SearchService(tokenRepository, lyricsRepository, stringService);
     }
 
 }

@@ -7,9 +7,9 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MySQL57InnoDBDialect
     show-sql: false
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
+#    generate-ddl: true
+#    hibernate:
+#      ddl-auto: update
 logging:
   level:
     org.springframework: info
