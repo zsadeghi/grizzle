@@ -1,10 +1,9 @@
 package me.theyinspire.proejcts.grizzle.web;
 
+import me.theyinspire.proejcts.grizzle.service.ResultPage;
 import me.theyinspire.proejcts.grizzle.service.SearchService;
 import me.theyinspire.projects.grizzle.model.Lyrics;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/rest/v1/search")
@@ -17,9 +16,10 @@ public class SearchController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = {"", "/"})
-    public List<Lyrics> findAndRank(@RequestBody String query, @RequestParam(value = "tokens", defaultValue = "false")
-            Boolean includeTokens) {
-        return searchService.rank(query, includeTokens);
+    public ResultPage<Lyrics> findAndRank(@RequestBody String query,
+                                          @RequestParam(value = "tokens", defaultValue = "false") Boolean includeTokens,
+                                          @RequestParam(value = "page", defaultValue = "1") Integer page) {
+        return searchService.rank(query, includeTokens, page);
     }
 
 }

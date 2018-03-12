@@ -6,45 +6,252 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Spotifind</title>
-    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="lib/components-font-awesome/css/fontawesome-all.min.css" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="lib/components-font-awesome/css/fontawesome-all.min.css"/>
     <script src="lib/jquery/dist/jquery.slim.js"></script>
     <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="lib/angular/angular.js"></script>
     <script src="app/main.js"></script>
+    <style lang="text/css"><!--
+    body {
+        background: url(app/large-bg.jpg) #1c2838 no-repeat top center;
+        background-size: cover;
+        -webkit-transition: opacity 1500ms;
+        -moz-transition: opacity 1500ms;
+        -ms-transition: opacity 1500ms;
+        -o-transition: opacity 1500ms;
+        transition: opacity 1500ms;
+        opacity: 0;
+    }
+
+    .spotifind-pagination {
+        display: block;
+        width: 100%;
+    }
+
+    .spotifind-pagination ul {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+    }
+
+    .spotifind-pagination ul li {
+        list-style: none;
+        display: inline-block;
+        height: 45px;
+        vertical-align: top;
+        font-size: 19px;
+        width: 21px;
+        text-align: center;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .spotifind-pagination ul li.page {
+        cursor: pointer;
+    }
+
+    .spotifind-pagination ul li.active {
+        background: #fff;
+        color: #000;
+        border-radius: 3px;
+    }
+
+    .spotifind-pagination ul li em {
+        display: block;
+        height: 25px;
+        font-style: normal;
+    }
+
+    .spotifind-pagination ul li span {
+        display: block;
+        height: 20px;
+        font-style: normal;
+        font-size: 12px;
+        font-weight: normal;
+    }
+
+    form {
+        -webkit-transition: all 1200ms;
+        -moz-transition: all 1200ms;
+        -ms-transition: all 1200ms;
+        -o-transition: all 1200ms;
+        transition: all 1200ms;
+        margin-top: -50px;
+    }
+
+    form.main {
+        margin-top: 30%;
+    }
+
+    form #search-box {
+        margin-left: 90px;
+        padding-right: 90px;
+    }
+
+    form.main #search-box {
+        margin-left: 0;
+        padding-right: 0;
+    }
+
+    #logo {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 18px;
+        position: relative;
+        /*opacity: 0;*/
+        -webkit-transition: all 600ms;
+        -moz-transition: all 600ms;
+        -ms-transition: all 600ms;
+        -o-transition: all 600ms;
+        transition: all 600ms;
+        left: -515px;
+        top: 62px;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    form.main #logo {
+        font-size: 46px;
+        opacity: 1;
+        position: relative;
+        left: 0;
+        top: 0;
+        font-weight: normal;
+        color: #314354;
+        text-shadow: 0 1px 0 #fff;
+    }
+
+    #search-content {
+        opacity: 0;
+        -webkit-transition: all 1000ms;
+        -moz-transition: all 1000ms;
+        -ms-transition: all 1000ms;
+        -o-transition: all 1000ms;
+        transition: all 1000ms;
+    }
+
+    #search-content.loaded {
+        opacity: 1;
+    }
+
+    #search-meta {
+        color: #e1e1e1;
+    }
+
+    #search-loader {
+        opacity: 0;
+        -webkit-transition: all 1000ms;
+        -moz-transition: all 1000ms;
+        -ms-transition: all 1000ms;
+        -o-transition: all 1000ms;
+        transition: all 1000ms;
+        border-radius: 6px;
+        padding: 6px;
+        width: 200px;
+        height: 100px;
+        margin-left: auto;
+        margin-right: auto;
+        overflow: hidden;
+    }
+
+    #search-loader.showing {
+        opacity: 1;
+        -webkit-transition: all 1000ms;
+        -moz-transition: all 1000ms;
+        -ms-transition: all 1000ms;
+        -o-transition: all 1000ms;
+        transition: all 1000ms;
+    }
+
+    #search-loader img {
+        position: relative;
+        left: -105px;
+        top: -105px;
+    }
+
+    a {
+        color: #0b2e13;
+    }
+
+    .list-group-item {
+        background: #e7f5ff;
+    }
+
+    .list-group-item:hover {
+        background: #f2fcff;
+    }
+
+    .opaque {
+        opacity: 1;
+    }
+
+    --></style>
 </head>
-<body>
+<body ng-controller="SearchPageController">
 <nav class="navbar navbar-dark bg-dark" style="color: #fff;">
-    <a class="navbar-brand" ng-href="#">Spotifind</a>
+    <a class="navbar-brand" ng-href="#" ng-click="view.results = {}; view.query = '';">Spotifind</a>
 </nav>
 <div class="row">&nbsp;</div>
-<div class="container" ng-controller="SearchPageController" ng-cloak="">
-    <form ng-submit="search();">
-        <div class="input-group mb-3">
+<div class="container" ng-cloak="">
+    <form ng-submit="search(1);" class="{{view.results.content ? '' : 'main'}}">
+        <div id="logo">Spotifind</div>
+        <div id="search-box" class="input-group mb-3">
             <input type="text" class="form-control" aria-label="Search &hellip;" placeholder="Search &hellip;"
                    ng-model="view.query" ng-disabled="view.loading">
-            <div class="input-group-append">
+            <div class="input-group-append" ng-click="search(1);">
                 <span class="input-group-text"><i class="fa fa-search"></i></span>
             </div>
         </div>
     </form>
-    <div ng-if="view.results.length">
+    <div ng-if="view.results.content && !view.results.content.length && !view.loading" class="text-center">
+        Nothing found :(
+    </div>
+    <div ng-if="view.results.content" id="search-content" class="{{view.results.content.length ? 'loaded' : ''}}">
+        <p id="search-meta"
+           ng-if="view.results.content.length">Showing {{(view.results.pageNumber - 1) * 10 + 1}} &mdash;
+            {{view.results.totalItems < (view.results.pageNumber) * 10 ? view.results.totalItems :
+            (view.results.pageNumber) * 10}}
+            of
+            <strong>{{view.results.totalItems}}</strong> item(s) in
+            {{view.results.time}}ms</p>
         <hr/>
         <div class="list-group">
-            <div ng-repeat="item in view.results"
-                  class="list-group-item list-group-item-action flex-column align-items-start">
-                <div class="d-flex w-100 justify-content-between">
+            <div ng-repeat="item in view.results.content"
+                 class="list-group-item list-group-item-action flex-column align-items-start">
+                <a class="d-flex w-100 justify-content-between"
+                   ng-href="https://www.musixmatch.com/search/{{item.track.title}}/tracks" target="_blank">
                     <h5 class="mb-1">{{item.track.title}}</h5>
                     <small>{{item.musixMatchId}}</small>
+                </a>
+                <div class="mb-1">
+                    <a ng-href="https://www.musixmatch.com/search/{{item.track.album}}" target="_blank">
+                        <i class="fa fa-music"></i>
+                        {{item.track.album}}
+                        <span ng-if="item.track.year">({{item.track.year}})</span>
+                    </a>
                 </div>
-                <p class="mb-1"><i class="fa fa-music"></i> {{item.track.album}}</p>
-                <p class="mb-1"><i class="fa fa-user"></i> {{item.track.artist.name}}</p>
+                <a class="mb-1" ng-href="http://musicbrainz.org/artist/{{item.track.artist.musicBrainzId}}"
+                   target="_blank"
+                ><i class="fa fa-user"></i> {{item.track.artist.name}}</a>
             </div>
         </div>
+        <div class="spotifind-pagination" ng-if="view.results.totalPages &gt; 1">
+            <hr/>
+            <ul>
+                <li>Sp</li>
+                <li ng-repeat="page in view.results.pageNumber | range:view.results.totalPages" ng-click="search(page)"
+                    class="page {{page == view.results.pageNumber ? 'active' : ''}}">
+                    <em>o</em>
+                    <span>{{page}}</span>
+                </li>
+                <li>tifind</li>
+            </ul>
+        </div>
     </div>
-    <div ng-show="!view.results.length && view.loading">
-        <div class="row">&nbsp;</div>
-        <img src="app/big-ajax-loader.gif" alt="Loading results ..." class="mx-auto d-block" style="width: 50px;" />
+    <div id="search-loader" class="{{!view.results.length && view.loading ? 'showing' : ''}}">
+        <img src="app/3.gif" alt="Loading results ..." class="mx-auto d-block"/>
     </div>
 </div>
 </body>

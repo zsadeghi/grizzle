@@ -1,5 +1,6 @@
 package me.theyinspire.proejcts.grizzle.service;
 
+import edu.washington.cs.knowitall.morpha.MorphaStemmer;
 import me.theyinspire.projects.grizzle.model.Lyrics;
 import me.theyinspire.projects.grizzle.repository.LyricsRepository;
 import me.theyinspire.projects.grizzle.repository.TokenRepository;
@@ -9,10 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.StopWatch;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SearchService {
@@ -20,6 +20,8 @@ public class SearchService {
     private final TokenRepository tokenRepository;
     private final LyricsRepository lyricsRepository;
     private final StringService stringService;
+    private final Map<String, List<Long>> queryCache;
+    private final Map<String, List<Long>> scoredCache;
 
     public SearchService(final TokenRepository tokenRepository,
                          final LyricsRepository lyricsRepository,
@@ -27,6 +29,8 @@ public class SearchService {
         this.tokenRepository = tokenRepository;
         this.lyricsRepository = lyricsRepository;
         this.stringService = stringService;
+        queryCache = new ConcurrentHashMap<>();
+        scoredCache = new ConcurrentHashMap<>();
     }
 
     public List<Lyrics> search(String query) {
@@ -36,98 +40,134 @@ public class SearchService {
                 .collect(Collectors.toList());
     }
 
-    public List<Lyrics> rank(String query, boolean includeTokens) {
-        final List<Long> lyricsIds = recall(query);
-        final String[] tokens = stringService.normalize(query.toLowerCase());
-        final List<Long> documentFrequencies = Arrays.stream(tokens).parallel()
-                                                     .map(tokenRepository::getDocumentFrequency)
-                                                     .map(BigInteger::longValue)
-                                                     .collect(Collectors.toList());
-        final List<List<Long>> termFrequencies = lyricsIds.stream().parallel()
-                                                          .map(id -> Arrays.stream(tokens)
-                                                                           .map(token -> tokenRepository
-                                                                                   .getTermFrequency(token, id))
-                                                                           .map(value -> value == null
-                                                                                   ? BigInteger.ZERO
-                                                                                   : value)
-                                                                           .map(BigInteger::longValue)
-                                                                           .collect(Collectors.toList())
-                                                              )
-                                                          .collect(Collectors.toList());
-        final List<Indexed<Long>> indexedLyricsIds = new ArrayList<>(lyricsIds.size());
-        for (int i = 0; i < lyricsIds.size(); i++) {
-            indexedLyricsIds.add(new Indexed<>(i, lyricsIds.get(i)));
-        }
-        return indexedLyricsIds
-                .stream().parallel()
-                .map(indexed -> new ScoredDocument(indexed.getValue(), score(indexed.getValue(),
-                                                                             documentFrequencies,
-                                                                             termFrequencies
-                                                                                     .get(indexed.getIndex()))))
-                .sorted()
-                .map(ScoredDocument::getId)
-                .limit(20)
-                .map(lyricsRepository::findOne)
-                .peek(lyrics -> {
-                    if (includeTokens) {
-                        lyrics.setTokens(
-                                tokenRepository.findByLyrics(lyrics)
-                                               .stream()
-                                               .peek(token -> token.setLyrics(null))
-                                               .collect(Collectors.toSet())
-                                        );
-                    }
-                })
-                .collect(Collectors.toList());
+    public ResultPage<Lyrics> rank(String query, boolean includeTokens, int page) {
+        final long time = System.currentTimeMillis();
+        final int pageSize = 10;
+        final String hash = String.join("\\0", Arrays.stream(query.toLowerCase().trim().split("\\s+"))
+                                                     .sorted()
+                                                     .distinct()
+                                                     .collect(Collectors.toList()));
+        final List<Long> allItems = scoredCache.computeIfAbsent(hash, s -> {
+            final String[] tokens = stringService.tokenize(query);
+            final String[] stems = Arrays.stream(tokens)
+                                         .map(MorphaStemmer::stem)
+                                         .toArray(String[]::new);
+            final List<Long> lyricsIds = recall(query);
+            final int totalItems = lyricsIds.size();
+            final String[] normalized = stringService.normalize(query.toLowerCase());
+            final List<Long> documentFrequencies = Arrays.stream(normalized).parallel()
+                                                         .map(tokenRepository::getDocumentFrequency)
+                                                         .map(BigInteger::longValue)
+                                                         .collect(Collectors.toList());
+            final List<List<Long>> termFrequencies = lyricsIds.stream().parallel()
+                                                              .map(id -> Arrays.stream(normalized)
+                                                                               .map(token -> tokenRepository
+                                                                                       .getTermFrequency(token, id))
+                                                                               .map(value -> value == null
+                                                                                       ? BigInteger.ZERO
+                                                                                       : value)
+                                                                               .map(BigInteger::longValue)
+                                                                               .collect(Collectors.toList())
+                                                                  )
+                                                              .collect(Collectors.toList());
+            final List<Indexed<Long>> indexedLyricsIds = new ArrayList<>(totalItems);
+            for (int i = 0; i < totalItems; i++) {
+                indexedLyricsIds.add(new Indexed<>(i, lyricsIds.get(i)));
+            }
+            return indexedLyricsIds
+                    .stream().parallel()
+                    .map(indexed -> new ScoredDocument(indexed.getValue(), score(indexed.getValue(),
+                                                                                 documentFrequencies,
+                                                                                 termFrequencies
+                                                                                         .get(indexed.getIndex()),
+                                                                                 stems
+                                                                                )
+                    ))
+                    .sorted(Comparator.reverseOrder())
+                    .map(ScoredDocument::getId)
+                    .collect(Collectors.toList());
+        });
+        final int totalItems = allItems.size();
+        final List<Lyrics> content = allItems.stream()
+                                             .skip((page - 1) * pageSize)
+                                             .limit(pageSize)
+                                             .map(lyricsRepository::findOne)
+                                             .peek(lyrics -> {
+                                                 if (includeTokens) {
+                                                     lyrics.setTokens(
+                                                             tokenRepository.findByLyrics(lyrics)
+                                                                            .stream()
+                                                                            .peek(token -> token.setLyrics(null))
+                                                                            .collect(Collectors.toSet())
+                                                                     );
+                                                 }
+                                             })
+                                             .collect(Collectors.toList());
+        return new ResultPage<>(content, page, (int) Math.ceil((double) totalItems / pageSize), pageSize, totalItems,
+                                System.currentTimeMillis() - time);
     }
 
-    private double score(Long id, List<Long> documentFrequencies, List<Long> termFrequencies) {
+    private double score(Long id, List<Long> documentFrequencies, List<Long> termFrequencies, String[] stems) {
+        final String trackTitle = lyricsRepository.findTrackTitle(id);
+        final Map<String, Long> titleStem = Arrays.stream(trackTitle.toLowerCase().trim().split("\\s+"))
+                                                  .map(MorphaStemmer::stem)
+                                                  .collect(Collectors.groupingBy(
+                                                          Function.identity(),
+                                                          Collectors.counting()));
+
         double score = 0D;
         for (int i = 0; i < documentFrequencies.size(); i++) {
-            score += documentFrequencies.get(i) * (1.0D / termFrequencies.get(i));
+            score += termFrequencies.get(i) * (10.0D / documentFrequencies.get(i));
         }
+        for (String stem : stems) {
+            score += titleStem.getOrDefault(stem, 0L) * 2;
+        }
+        final Double artistFamiliarity = lyricsRepository.findArtistFamiliarity(id);
+        score += artistFamiliarity * 5;
         return score;
     }
 
     private List<Long> recall(final String query) {
-        System.out.println("Starting search for " + query);
-        final String[] tokens = stringService.normalize(query.toLowerCase());
-        final List<WordStat> stats = prepareWordStats(tokens);
-        System.out.println(stats);
-        final long totalLyrics = lyricsRepository.count();
-        final List<Page<BigInteger>> readers = new ArrayList<>();
-        final List<Integer> cursors = new ArrayList<>();
-        Long max = Long.MIN_VALUE;
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        final int searchSpan = getSearchSpan(stats, totalLyrics, readers, cursors);
-        final List<Long> intersection = new LinkedList<>();
-        while (true) {
-            int remainingReaders = 0;
-            for (int i = 0; i < readers.size(); i++) {
-                if (readers.get(i) == null) {
-                    continue;
+        return queryCache.computeIfAbsent(query.trim().toLowerCase().replaceAll("\\s+", " "), input -> {
+            System.out.println("Starting search for " + input);
+            final String[] tokens = stringService.normalize(input.toLowerCase());
+            final List<WordStat> stats = prepareWordStats(tokens);
+            System.out.println(stats);
+            final long totalLyrics = lyricsRepository.count();
+            final List<Page<BigInteger>> readers = new ArrayList<>();
+            final List<Integer> cursors = new ArrayList<>();
+            Long max = Long.MIN_VALUE;
+            final StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            final int searchSpan = getSearchSpan(stats, totalLyrics, readers, cursors);
+            final List<Long> intersection = new LinkedList<>();
+            while (true) {
+                int remainingReaders = 0;
+                for (int i = 0; i < readers.size(); i++) {
+                    if (readers.get(i) == null) {
+                        continue;
+                    }
+                    int high = getCrossingIndex(readers, cursors, max, i);
+                    if (handleCrossingIndex(stats, readers, cursors, i, high)) {
+                        break;
+                    }
+                    if (readers.get(i) != null) {
+                        remainingReaders++;
+                    }
                 }
-                int high = getCrossingIndex(readers, cursors, max, i);
-                if (handleCrossingIndex(stats, readers, cursors, i, high)) {
+                if (remainingReaders < searchSpan) {
                     break;
                 }
-                if (readers.get(i) != null) {
-                    remainingReaders++;
-                }
+                // Now that all cursors are updated, we will check for an intersection.
+                max = findMaximum(readers, cursors, max);
+                max = checkIntersection(readers, cursors, max, intersection);
             }
-            if (remainingReaders < searchSpan) {
-                break;
-            }
-            // Now that all cursors are updated, we will check for an intersection.
-            max = findMaximum(readers, cursors, max);
-            max = checkIntersection(readers, cursors, max, intersection);
-        }
-        stopWatch.stop();
-        System.out.println("Intersection size:" + intersection.size());
-        System.out.println("Intersection is: " + intersection);
-        System.out.println(stopWatch.prettyPrint());
-        return intersection;
+            stopWatch.stop();
+            System.out.println("Intersection size:" + intersection.size());
+            System.out.println("Intersection is: " + intersection);
+            System.out.println(stopWatch.prettyPrint());
+            return intersection;
+        });
     }
 
     private Long checkIntersection(final List<Page<BigInteger>> readers, final List<Integer> cursors, Long max,
