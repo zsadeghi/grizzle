@@ -1,7 +1,7 @@
-package me.theyinspire.proejcts.grizzle.web;
+package me.theyinspire.projects.grizzle.web;
 
-import me.theyinspire.proejcts.grizzle.service.ResultPage;
-import me.theyinspire.proejcts.grizzle.service.SearchService;
+import me.theyinspire.projects.grizzle.service.ResultPage;
+import me.theyinspire.projects.grizzle.service.SearchService;
 import me.theyinspire.projects.grizzle.model.Lyrics;
 import org.springframework.web.bind.annotation.*;
 

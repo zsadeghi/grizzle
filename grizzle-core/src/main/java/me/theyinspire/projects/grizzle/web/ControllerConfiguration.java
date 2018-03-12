@@ -1,6 +1,6 @@
-package me.theyinspire.proejcts.grizzle.web;
+package me.theyinspire.projects.grizzle.web;
 
-import me.theyinspire.proejcts.grizzle.service.SearchService;
+import me.theyinspire.projects.grizzle.service.SearchService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

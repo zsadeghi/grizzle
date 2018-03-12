@@ -1,8 +1,8 @@
-package me.theyinspire.proejcts.grizzle;
+package me.theyinspire.projects.grizzle;
 
-import me.theyinspire.proejcts.grizzle.data.DataAccessConfiguration;
-import me.theyinspire.proejcts.grizzle.service.ServiceConfiguration;
-import me.theyinspire.proejcts.grizzle.web.ControllerConfiguration;
+import me.theyinspire.projects.grizzle.data.DataAccessConfiguration;
+import me.theyinspire.projects.grizzle.service.ServiceConfiguration;
+import me.theyinspire.projects.grizzle.web.ControllerConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;

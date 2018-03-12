@@ -1,4 +1,4 @@
-package me.theyinspire.proejcts.grizzle.service;
+package me.theyinspire.projects.grizzle.service;
 
 import edu.washington.cs.knowitall.morpha.MorphaStemmer;
 import me.theyinspire.projects.grizzle.model.Lyrics;

@@ -1,4 +1,4 @@
-package me.theyinspire.proejcts.grizzle.service;
+package me.theyinspire.projects.grizzle.service;
 
 import me.theyinspire.projects.grizzle.repository.LyricsRepository;
 import me.theyinspire.projects.grizzle.repository.TokenRepository;

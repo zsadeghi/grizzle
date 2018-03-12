@@ -1,4 +1,4 @@
-package me.theyinspire.proejcts.grizzle.service;
+package me.theyinspire.projects.grizzle.service;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;

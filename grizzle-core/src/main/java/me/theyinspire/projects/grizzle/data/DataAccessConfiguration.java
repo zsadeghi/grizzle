@@ -1,4 +1,4 @@
-package me.theyinspire.proejcts.grizzle.data;
+package me.theyinspire.projects.grizzle.data;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;
